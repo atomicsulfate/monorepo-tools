@@ -46,7 +46,7 @@ Optionally you can specify a directory where the repository will be located by p
 
 The command will rewrite history of all mentioned repositories as if they were developed in separate subdirectories.
 
-Branches and tags of the same name will be merged across all remotes.
+All homonymous branches and tags from different remotes will be merged together.
 
 ```
 ~/monorepo-tools/monorepo_build.sh \
@@ -55,7 +55,7 @@ Branches and tags of the same name will be merged across all remotes.
 
 This may take a while, depending on the size of your repositories.
 
-Now your `master` branch should contain all packages in separate directories. For our example it would mean:
+Now your branches and tags should contain all packages in separate directories. For our example it would mean:
 * **main-repository/** - contains repository *vendor/main-repository*
 * **packages/**
   * **alpha/** - contains repository *vendor/alpha*
