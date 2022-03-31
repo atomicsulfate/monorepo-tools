@@ -46,7 +46,7 @@ Optionally you can specify a directory where the repository will be located by p
 
 The command will rewrite history of all mentioned repositories as if they were developed in separate subdirectories.
 
-Only branches `master` will be merged together, other branches will be kept only from first package to avoid possible branch name conflicts.
+Branches and tags of the same name will be merged across all remotes.
 
 ```
 ~/monorepo-tools/monorepo_build.sh \
@@ -78,12 +78,12 @@ Other branches are not pushed.
 
 It may again take a while, depending on the size of your monorepo.
 
-***Note:***  
+***Note:***
 *The commits in the split repositories should be identical to those from the original repo, keeping the git history intact.*
-*Thus, if you have checked out the original `master` previously, you should be able to fast-forward to the new version after splitting.*  
+*Thus, if you have checked out the original `master` previously, you should be able to fast-forward to the new version after splitting.*
 *The only known exception is a signed commit (note that GitHub signs commits made via its web UI by default).*
 *If you have signed commits in your original repository, the split commits will NOT be signed.*
-*This will prevent `monorepo_split.sh` from pushing the unsigned commits to the remote.*  
+*This will prevent `monorepo_split.sh` from pushing the unsigned commits to the remote.*
 *To overcome this you can add [the `--force` flag](https://git-scm.com/docs/git-push#git-push--f) to the `git push` calls in the script, but it may cause unforeseen consequences if you're not sure what you're doing.*
 
 ### Add a new package into the monorepo
