@@ -152,6 +152,6 @@ for TAG in "${!MERGE_TAGS[@]}"; do
     git branch -q -D $TMP_BRANCH
 done
 
-echo "3. Review created branches and tags. If all's well, push with 'git push -f <monorepo_remote>'"
+echo "3. Review created branches and tags. If all's well, push with 'git push --all <monorepo_remote> && git push --tags <monorepo_remote>'"
 
 
