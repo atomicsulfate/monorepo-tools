@@ -14,7 +14,8 @@
 export FILTER_BRANCH_SQUELCH_WARNING=1
 
 function remote_branches {
-	git branch -r --list $1/*| sed -e "s/[ \t]*$1\///"
+    # Exclude special branches like "HEAD" or "ref/for/master" from output.
+	git branch -r --list $1/* | sed -e "s/[ \t]*$1\///" -e "s/\s\+.*//" -e "/ref\/for\/master/d" -e "/HEAD/d"
 }
 
 function fetch_tags_from_remote {
@@ -106,11 +107,18 @@ for PARAM in $@; do
     echo -e "\tRemote '$REMOTE'"
     echo -e "\t\tFetch all tags"
     fetch_tags_from_remote $REMOTE
-    echo -e "\t\tRewrite history to move files into subdir '$SUBDIRECTORY'"
-    # git filter-branch needs some valid HEAD.
-    git checkout -q -B master $(git rev-parse $REMOTE/master)
-    $MONOREPO_SCRIPT_DIR/rewrite_history_into.sh $SUBDIRECTORY --remotes=$REMOTE --tags
-    cleanup-local > /dev/null
+
+    # If subdirectory is "." remote's content stays in root directory, no need to rewrite history.
+    if [ "$SUBDIRECTORY" != "." ]; then
+        echo -e "\t\tRewrite history to move files into subdir '$SUBDIRECTORY'"
+        # git filter-branch needs some valid HEAD.
+        git checkout -q -B master $(git rev-parse $REMOTE/master)
+        $MONOREPO_SCRIPT_DIR/rewrite_history_into.sh $SUBDIRECTORY --remotes=$REMOTE --tags
+        cleanup-local > /dev/null
+
+        # Wipe the back-up of original history
+        $MONOREPO_SCRIPT_DIR/original_refs_wipe.sh > /dev/null
+    fi
 
     for BRANCH in $(remote_branches $REMOTE); do
         MERGE_BRANCHES[$BRANCH]="${MERGE_BRANCHES[$BRANCH]} $(git rev-parse $REMOTE/$BRANCH)"
@@ -120,8 +128,6 @@ for PARAM in $@; do
         MERGE_TAGS[$TAG]="${MERGE_TAGS[$TAG]} $(git rev-parse $TAG)"
         git tag -d $TAG > /dev/null # clean up to avoid conflicts with tags from next remote.
     done
-    # Wipe the back-up of original history
-    $MONOREPO_SCRIPT_DIR/original_refs_wipe.sh > /dev/null
 done
 
 echo "2. Merge branches and tags with same names across remotes"
